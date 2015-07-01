@@ -7,7 +7,7 @@
     android:padding="5dp">
 
     <ImageView
-        android:id="@+id/videoItemImage"
+        android:id="@+id/slidermenu_videoitem_image"
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight=".25"
@@ -15,12 +15,12 @@
     </ImageView>
 
     <TextView
-        android:id="@+id/videoItemText"
-        style="@style/VideoTitle"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
+        android:id="@+id/slidermenu_videoitem_text"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight=".75"
+        style="@style/VideoTitle"
+        android:gravity="center_vertical"
         android:layout_marginLeft="15dp">
     </TextView>
 

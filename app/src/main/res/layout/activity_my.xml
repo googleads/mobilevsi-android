@@ -1,4 +1,5 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
@@ -8,9 +9,18 @@
     tools:ignore="MergeRootFrame">
 
     <FrameLayout
+        android:id="@+id/frame_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/video_example_container">
+        android:layout_height="match_parent">
     </FrameLayout>
 
-</LinearLayout>
+    <FrameLayout
+        android:id="@+id/slidermenu_list"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/slidermenu_background">
+
+    </FrameLayout>
+
+</android.support.v4.widget.DrawerLayout>

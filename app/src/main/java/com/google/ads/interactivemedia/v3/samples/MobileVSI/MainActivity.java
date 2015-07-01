@@ -16,28 +16,31 @@
 package com.google.ads.interactivemedia.v3.samples.MobileVSI;
 
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.VideoFragment;
-import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.VideoListFragment;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.slidermenu.VideoListFragment;
 
 /**
  * Main Activity.
  */
 public class MainActivity extends AppCompatActivity
     implements VideoListFragment.OnVideoSelectedListener,
-            VideoListFragment.OnVideoListFragmentResumedListener,
         VideoFragment.OnVideoFragmentViewCreatedListener {
 
     private static final String VIDEO_PLAYLIST_FRAGMENT_TAG = "video_playlist_fragment_tag";
-    private static final String VIDEO_EXAMPLE_FRAGMENT_TAG = "video_example_fragment_tag";
+    private static final String VIDEO_DISPLAY_FRAGMENT_TAG = "video_example_fragment_tag";
+
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle drawerToggle;
+
+    private VideoFragment videoFragment;
+    private VideoListFragment videoListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,19 +51,43 @@ public class MainActivity extends AppCompatActivity
         // .replace() it once the user selects a video.
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag(VIDEO_PLAYLIST_FRAGMENT_TAG) == null) {
-            VideoListFragment videoListFragment = new VideoListFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.video_example_container, videoListFragment,
-                            VIDEO_PLAYLIST_FRAGMENT_TAG)
+            videoListFragment = new VideoListFragment();
+            fragmentManager.beginTransaction()
+                    .add(R.id.slidermenu_list, videoListFragment, VIDEO_PLAYLIST_FRAGMENT_TAG)
+                    .commit();
+        }
+        if (fragmentManager.findFragmentByTag(VIDEO_DISPLAY_FRAGMENT_TAG) == null) {
+            videoFragment = new VideoFragment();
+            fragmentManager.beginTransaction()
+                    .add(R.id.frame_container, videoFragment, VIDEO_DISPLAY_FRAGMENT_TAG)
                     .commit();
         }
 
-        orientAppUi();
+        drawerLayout = (DrawerLayout) findViewById(R.id.container);
+
+        drawerToggle = new ActionBarDrawerToggle(
+                this, drawerLayout, R.string.app_name, R.string.app_name);
+        drawerToggle.setDrawerIndicatorEnabled(true);
+
+        openDrawer();
+    }
+
+    /**
+     * Note: When using the ActionBarDrawerToggle, you must call it during
+     * onPostCreate() and onConfigurationChanged()...
+     */
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        drawerToggle.syncState();
     }
 
     @Override
-    public void onConfigurationChanged(Configuration configuration) {
-        super.onConfigurationChanged(configuration);
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggles
+        drawerToggle.onConfigurationChanged(newConfig);
         orientAppUi();
     }
 
@@ -68,44 +95,69 @@ public class MainActivity extends AppCompatActivity
         int orientation = getResources().getConfiguration().orientation;
         boolean isLandscape = (orientation == Configuration.ORIENTATION_LANDSCAPE);
         // Hide the non-video content when in landscape so the video is as large as possible.
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        VideoFragment videoFragment = (VideoFragment) fragmentManager
-                .findFragmentByTag(VIDEO_EXAMPLE_FRAGMENT_TAG);
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        VideoFragment videoFragment = (VideoFragment) fragmentManager
+//                .findFragmentByTag(VIDEO_DISPLAY_FRAGMENT_TAG);
+//
+//        Fragment videoListFragment = fragmentManager.findFragmentByTag(
+//                VIDEO_PLAYLIST_FRAGMENT_TAG);
 
-        Fragment videoListFragment = fragmentManager.findFragmentByTag(
-                VIDEO_PLAYLIST_FRAGMENT_TAG);
-
-        if (videoFragment != null) {
+//        if (videoFragment != null) {
             // If the video playlist is onscreen (tablets) then hide that fragment.
-            if (videoListFragment != null) {
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                if (isLandscape) {
-                    fragmentTransaction.hide(videoListFragment);
-                } else {
-                    fragmentTransaction.show(videoListFragment);
-                }
-                fragmentTransaction.commit();
-            }
+//            if (videoListFragment != null) {
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                if (isLandscape) {
+//                    fragmentTransaction.hide(videoListFragment);
+//                } else {
+//                    fragmentTransaction.show(videoListFragment);
+//                }
+//                fragmentTransaction.commit();
+//            }
             videoFragment.makeFullscreen(isLandscape);
-            if (isLandscape) {
-                hideStatusBar();
-            } else {
-                showStatusBar();
-            }
-        } else {
+//            if (isLandscape) {
+//                hideStatusBar();
+//            } else {
+//                showStatusBar();
+//            }
+//        } else {
             // If returning to the list from a fullscreen video, check if the video
             // list fragment exists and is hidden. If so, show it.
-            if (videoListFragment != null && videoListFragment.isHidden()) {
-                fragmentManager.beginTransaction().show(videoListFragment).commit();
-                showStatusBar();
-            }
-        }
+//            if (videoListFragment != null && videoListFragment.isHidden()) {
+//                fragmentManager.beginTransaction().show(videoListFragment).commit();
+//                showStatusBar();
+//            }
+//        }
+    }
+
+    // TODO: Remove these commented sections when the landscape mode design is ready
+
+//    private void hideStatusBar() {
+//        if (Build.VERSION.SDK_INT >= 16) {
+//            getWindow().getDecorView().setSystemUiVisibility(
+//                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+//            getSupportActionBar().hide();
+//        }
+//    }
+//
+//    private void showStatusBar() {
+//        if (Build.VERSION.SDK_INT >= 16) {
+//            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+//            getSupportActionBar().show();
+//        }
+//    }
+
+    public void openDrawer() {
+        drawerLayout.openDrawer(findViewById(R.id.slidermenu_list));
+    }
+
+    public void closeDrawer() {
+        drawerLayout.closeDrawer(findViewById(R.id.slidermenu_list));
     }
 
     @Override
     public void onVideoSelected(VideoItemMetadata videoItemMetadata) {
         VideoFragment videoFragment = (VideoFragment)
-                getSupportFragmentManager().findFragmentByTag(VIDEO_EXAMPLE_FRAGMENT_TAG);
+                getSupportFragmentManager().findFragmentByTag(VIDEO_DISPLAY_FRAGMENT_TAG);
 
         // Add the video fragment if it's missing (phone form factor), but only if the user
         // manually selected the video.
@@ -117,37 +169,17 @@ public class MainActivity extends AppCompatActivity
             videoFragment = new VideoFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(videoPlaylistFragmentId, videoFragment, VIDEO_EXAMPLE_FRAGMENT_TAG)
+                    .replace(videoPlaylistFragmentId, videoFragment, VIDEO_DISPLAY_FRAGMENT_TAG)
                     .addToBackStack(null)
                     .commit();
         }
         videoFragment.loadVideo(videoItemMetadata);
         orientAppUi();
-
-    }
-
-    @Override
-    public void onVideoListFragmentResumed() {
-        orientAppUi();
+        closeDrawer();
     }
 
     @Override
     public void onVideoFragmentViewCreated() {
         orientAppUi();
-    }
-
-    private void hideStatusBar() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
-            getSupportActionBar().hide();
-        }
-    }
-
-    private void showStatusBar() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-            getSupportActionBar().show();
-        }
     }
 }

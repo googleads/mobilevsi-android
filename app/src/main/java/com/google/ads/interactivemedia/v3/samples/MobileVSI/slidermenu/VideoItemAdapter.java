@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp;
+package com.google.ads.interactivemedia.v3.samples.MobileVSI.slidermenu;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -33,45 +33,29 @@ import java.util.List;
  */
 public class VideoItemAdapter extends ArrayAdapter<VideoListItem> {
 
-    private int mLayoutResourceId;
+    private static final int LAYOUT_RESOURCE_ID = R.layout.video_item;
 
-    public VideoItemAdapter(Context context, int layoutResourceId, List<VideoListItem> data) {
-        super(context, layoutResourceId, data);
-        this.mLayoutResourceId = layoutResourceId;
+    public VideoItemAdapter(Context context, List<VideoListItem> data) {
+        super(context, LAYOUT_RESOURCE_ID, data);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        VideoItemHolder videoItemHolder;
         View row = convertView;
 
         // Check if it's recycled.
         if (row == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            row = inflater.inflate(mLayoutResourceId, parent, false);
-            videoItemHolder = new VideoItemHolder();
-            videoItemHolder.title = (TextView) row.findViewById(R.id.videoItemText);
-            videoItemHolder.image = (ImageView) row.findViewById(R.id.videoItemImage);
-            row.setTag(videoItemHolder);
-        } else {
-            videoItemHolder = (VideoItemHolder) row.getTag();
+            row = inflater.inflate(LAYOUT_RESOURCE_ID, parent, false);
         }
 
-        VideoListItem item = getItem(position);
+        ImageView imageView = (ImageView) row.findViewById(R.id.slidermenu_videoitem_image);
+        TextView textView = (TextView) row.findViewById(R.id.slidermenu_videoitem_text);
 
-        videoItemHolder.title.setText(item.getTitle());
-        videoItemHolder.image.setImageResource(item.getThumbnailResourceId());
+        VideoListItem item = getItem(position);
+        imageView.setImageResource(item.getThumbnailResourceId());
+        textView.setText(item.getTitle());
 
         return row;
     }
-
-    /**
-     * Holds the UI element equivalents of a VideoItemMetadata.
-     */
-    private class VideoItemHolder {
-
-        TextView title;
-        ImageView image;
-    }
-
 }

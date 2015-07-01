@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp;
+package com.google.ads.interactivemedia.v3.samples.MobileVSI.slidermenu;
+
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -35,13 +33,13 @@ import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.DirectInp
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.SampleVideoListItem;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoListItem;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoListItem.VideoListItemCallback;
 
 /**
  * Fragment for displaying a playlist of video thumbnails that the user can select from to play.
  */
-public class VideoListFragment extends Fragment implements VideoListItem.VideoListItemCallback {
-
-    private OnVideoSelectedListener mSelectedCallback;
+public class VideoListFragment extends Fragment
+        implements VideoListItemCallback, OnItemClickListener {
 
     /**
      * Listener called when the user selects a video from the list.
@@ -51,30 +49,20 @@ public class VideoListFragment extends Fragment implements VideoListItem.VideoLi
         void onVideoSelected(VideoItemMetadata videoItemMetadata);
     }
 
-    private OnVideoListFragmentResumedListener mResumeCallback;
+    private OnVideoSelectedListener onVideoSelectedListener;
 
-    /**
-     * Listener called when the video list fragment resumes.
-     */
-    public interface OnVideoListFragmentResumedListener {
-        void onVideoListFragmentResumed();
-    }
+    private VideoItemAdapter videoItemAdapter;
+
+    private ListView listView;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mSelectedCallback = (OnVideoSelectedListener) activity;
+            onVideoSelectedListener = (OnVideoSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement " + OnVideoSelectedListener.class.getName());
-        }
-
-        try {
-            mResumeCallback = (OnVideoListFragmentResumedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement " + OnVideoListFragmentResumedListener.class.getName());
         }
     }
 
@@ -83,30 +71,29 @@ public class VideoListFragment extends Fragment implements VideoListItem.VideoLi
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_video_list, container, false);
 
-        final ListView listView = (ListView) rootView.findViewById(R.id.videoListView);
-        VideoItemAdapter videoItemAdapter = new VideoItemAdapter(rootView.getContext(),
-                R.layout.video_item, getVideoItems());
-        listView.setAdapter(videoItemAdapter);
+        videoItemAdapter = new VideoItemAdapter(rootView.getContext(), getAllVideoItems());
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                if (mSelectedCallback != null) {
-                    VideoListItem selectedVideoListItem = (VideoListItem) listView.getItemAtPosition(position);
-                    selectedVideoListItem.fireCallback(
-                            VideoListFragment.this.getActivity(), VideoListFragment.this);
-                }
-            }
-        });
+        listView = (ListView) rootView.findViewById(R.id.videoListView);
+        listView.setAdapter(videoItemAdapter);
+        listView.setOnItemClickListener(this);
 
         return rootView;
     }
 
-    public void deliverVideoItemMetadata(VideoItemMetadata metadata) {
-        mSelectedCallback.onVideoSelected(metadata);
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (onVideoSelectedListener != null) {
+            VideoListItem selectedVideoListItem = (VideoListItem) listView.getItemAtPosition(position);
+            selectedVideoListItem.fireCallback(getActivity(), this);
+        }
     }
 
-    private static List<VideoListItem> getVideoItems() {
+    @Override
+    public void deliverVideoItemMetadata(VideoItemMetadata metadata) {
+        onVideoSelectedListener.onVideoSelected(metadata);
+    }
+
+    public static List<VideoListItem> getAllVideoItems() {
         final List<VideoListItem> videoListItems = new ArrayList<>();
 
         int imageId = R.drawable.thumbnail1;
@@ -114,13 +101,5 @@ public class VideoListFragment extends Fragment implements VideoListItem.VideoLi
         videoListItems.add(new DirectInputVideoListItem(imageId));
 
         return videoListItems;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mResumeCallback != null) {
-            mResumeCallback.onVideoListFragmentResumed();
-        }
     }
 }
