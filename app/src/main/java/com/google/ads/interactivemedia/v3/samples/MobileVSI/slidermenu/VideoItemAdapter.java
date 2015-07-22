@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class VideoItemAdapter extends ArrayAdapter<VideoListItem> {
 
-    private static final int LAYOUT_RESOURCE_ID = R.layout.video_item;
+    private static final int LAYOUT_RESOURCE_ID = R.layout.video_list_item;
 
     public VideoItemAdapter(Context context, List<VideoListItem> data) {
         super(context, LAYOUT_RESOURCE_ID, data);

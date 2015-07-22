@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Mobile VSI</string>
+    <string name="app_name">Video Suite Inspector</string>
     <string name="action_settings">Settings</string>
-    <string name="companionPlaceholder">Companion Ad Slot</string>
+    <string name="companion_placeholder">Companion Ad Slot</string>
     <string name="ad_ui_lang">en</string>
     <string name="companion_height">90</string>
     <string name="companion_width">728</string>

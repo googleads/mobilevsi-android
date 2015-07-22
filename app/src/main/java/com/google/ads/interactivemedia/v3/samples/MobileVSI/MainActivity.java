@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.VideoFragment;
@@ -30,8 +31,7 @@ import com.google.ads.interactivemedia.v3.samples.MobileVSI.slidermenu.VideoList
  * Main Activity.
  */
 public class MainActivity extends AppCompatActivity
-    implements VideoListFragment.OnVideoSelectedListener,
-        VideoFragment.OnVideoFragmentViewCreatedListener {
+    implements VideoListFragment.OnVideoSelectedListener {
 
     private static final String VIDEO_PLAYLIST_FRAGMENT_TAG = "video_playlist_fragment_tag";
     private static final String VIDEO_DISPLAY_FRAGMENT_TAG = "video_example_fragment_tag";
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my);
+        setContentView(R.layout.activity_main);
 
         // The video list fragment won't exist for phone layouts, so add it dynamically so we can
         // .replace() it once the user selects a video.
@@ -64,13 +64,26 @@ public class MainActivity extends AppCompatActivity
         }
 
         drawerLayout = (DrawerLayout) findViewById(R.id.container);
-
-        drawerToggle = new ActionBarDrawerToggle(
-                this, drawerLayout, R.string.app_name, R.string.app_name);
-        drawerToggle.setDrawerIndicatorEnabled(true);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.app_name, R.string.app_name);
+        drawerLayout.setDrawerListener(drawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         openDrawer();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            // return true since the option item selected triggered the
+            // drawer open/close action and was handled by the drawerToggle
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     /**
      * Note: When using the ActionBarDrawerToggle, you must call it during
@@ -176,10 +189,5 @@ public class MainActivity extends AppCompatActivity
         videoFragment.loadVideo(videoItemMetadata);
         orientAppUi();
         closeDrawer();
-    }
-
-    @Override
-    public void onVideoFragmentViewCreated() {
-        orientAppUi();
     }
 }

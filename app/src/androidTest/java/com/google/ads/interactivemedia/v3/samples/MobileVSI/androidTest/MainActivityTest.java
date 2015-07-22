@@ -32,7 +32,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     public void testClickSample() {
         onView(withText("Sample Tag")).perform(click());
 
-        onView(withId(R.id.videoPlayer)).check(matches(isDisplayed()));
+        onView(withId(R.id.video_player)).check(matches(isDisplayed()));
         onView(withId(R.id.videoContainer)).check(matches(isDisplayed()));
     }
 }

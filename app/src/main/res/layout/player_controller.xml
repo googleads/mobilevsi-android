@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- This under the VideoPlayerController -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight=".5"
+    android:background="#000000"
+    android:orientation="vertical"
+    android:id="@+id/videoContainer">
+
+    <!-- Video player with overlaid ads -->
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/video_player_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <VideoView
+            android:id="@+id/video_player"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true" />
+        <FrameLayout
+            android:id="@+id/ad_ui_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ImageButton
+            android:id="@+id/play_button"
+            android:contentDescription="Play Button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_action_play_over_video"
+            android:background="@null" />
+    </RelativeLayout>
+
+    <!-- Video Ad companions -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:id="@+id/companion_ad_slot"
+        android:background="#DDDDDD">
+
+        <TextView
+            android:id="@+id/companion_placeholder"
+            android:text="@string/companion_placeholder"
+            android:textAlignment="center"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/font_size" />
+    </LinearLayout>
+
+    <!-- Video ad tag URL -->
+    <TextView
+        android:id="@+id/video_ad_tag_url"
+        android:text=""
+        style="@style/Title"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1" />
+</LinearLayout>

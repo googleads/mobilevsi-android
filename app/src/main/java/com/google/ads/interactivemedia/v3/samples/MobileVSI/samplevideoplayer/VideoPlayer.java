@@ -23,22 +23,27 @@ public interface VideoPlayer {
     /**
      *  Interface for alerting caller of major video events.
      */
-    public interface PlayerCallback {
+    interface PlayerCallback {
 
         /**
          * Called when the current video starts playing from the beginning.
          */
-        void onPlay();
+        void onStarted();
 
         /**
          * Called when the current video pauses playback.
          */
-        void onPause();
+        void onPaused();
 
         /**
          * Called when the current video resumes playing from a paused state.
          */
-        void onResume();
+        void onResumed();
+
+        /**
+         * Called when the current video is stopped.
+         */
+        void onStopped();
 
         /**
          * Called when the current video has completed playback to the end of the video.
@@ -62,6 +67,11 @@ public interface VideoPlayer {
     void pause();
 
     /**
+     * Stop playing the currently loaded video.
+     */
+    void stop();
+
+    /**
      * Get the playback progress state (milliseconds) of the current video.
      */
     int getCurrentPosition();
@@ -77,9 +87,21 @@ public interface VideoPlayer {
     int getDuration();
 
     /**
-     * Stop playing the currently loaded video.
+     * @return true if the video is currently playing
      */
-    void stopPlayback();
+    boolean isPlaying();
+
+    /**
+     * @return true if playback is currently paused. Calling play() would cause
+     * it to resume playback from the position the video was paused at
+     */
+    boolean isPaused();
+
+    /**
+     * @return true if playback is currently stopped. Calling play() would cause
+     * it to start playback from the beginning of the video
+     */
+    boolean isStopped();
 
     /**
      * Prevent the media controller (playback controls) from appearing.
@@ -94,7 +116,7 @@ public interface VideoPlayer {
     /**
      * Set the URL or path of the video to play.
      */
-    void setVideoPath(String videoUrl);
+    void setVideoPath(String videoPath);
 
     /**
      * Provide the player with a getAdTagUrl for major video events (pause, complete, resume, etc).
