@@ -19,9 +19,10 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight=".75"
-        style="@style/VideoTitle"
+        style="@style/ListTitle"
         android:gravity="center_vertical"
-        android:layout_marginLeft="15dp">
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp" >
     </TextView>
 
 </LinearLayout>

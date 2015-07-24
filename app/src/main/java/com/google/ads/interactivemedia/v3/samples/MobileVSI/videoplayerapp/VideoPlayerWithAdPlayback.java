@@ -219,11 +219,8 @@ public class VideoPlayerWithAdPlayback
 
     @Override
     public void playAd() {
-        if (isAdDisplayed) {
-            if (!videoPlayer.isStopped()) {
-                savedContentVideoPosition = videoPlayer.getCurrentPosition();
-                videoPlayer.stop();
-            }
+        // The player must be stopped
+        if (isAdDisplayed && videoPlayer.isStopped()) {
             if (adVideoUrl == null || adVideoUrl.isEmpty()) {
                 logger.w("No ad URL specified.");
                 return;
@@ -232,7 +229,12 @@ public class VideoPlayerWithAdPlayback
             videoPlayer.play();
             logger.v("playAd()");
         } else {
-            logger.w("playAd() called when ad is not displayed. Ignoring call.");
+            if (!isAdDisplayed) {
+                logger.w("playAd() called when ad is not displayed. Ignoring call.");
+            }
+            if (!videoPlayer.isStopped()) {
+                logger.w("playAd() called when video player is not stopped. Ignoring call.");
+            }
         }
     }
 
@@ -264,11 +266,16 @@ public class VideoPlayerWithAdPlayback
 
     @Override
     public void resumeAd() {
-        if (isAdDisplayed) {
+        if (isAdDisplayed && videoPlayer.isPaused()) {
             videoPlayer.play();
             logger.v("resumeAd()");
         } else {
-            logger.w("resumeAd() called when ad is not displayed. Ignoring call.");
+            if (!isAdDisplayed) {
+                logger.w("resumeAd() called when ad is not displayed. Ignoring call.");
+            }
+            if (!videoPlayer.isPaused()) {
+                logger.w("resumeAd() called when video player is not paused. Ignoring call.");
+            }
         }
     }
 

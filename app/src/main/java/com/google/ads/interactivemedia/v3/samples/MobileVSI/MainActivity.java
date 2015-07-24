@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity
 //                }
 //                fragmentTransaction.commit();
 //            }
-            videoFragment.makeFullscreen(isLandscape);
+            videoFragment.switchToLandscape(isLandscape);
 //            if (isLandscape) {
 //                hideStatusBar();
 //            } else {

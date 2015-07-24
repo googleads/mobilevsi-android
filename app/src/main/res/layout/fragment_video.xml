@@ -1,28 +1,51 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/video_fragment_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:layout_margin="5dp"
     tools:context=".MyActivity$VideoFragment">
 
-    <!-- All video and ad content -->
-    <include layout="@layout/player_controller" />
-
-    <!-- SDK event log -->
-    <ScrollView
-        android:id="@+id/log_scroll"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.4"
-        android:padding="5dp"
-        android:background="#DDDDDD">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true">
 
-        <TextView
-            android:id="@+id/log_text"
+        <!-- All video and ad content -->
+        <include layout="@layout/player_controller"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </TextView>
-    </ScrollView>
+            android:layout_height="0dp"
+            android:id="@+id/video_player_controller"
+            android:layout_weight="0.6"/>
 
-</LinearLayout>
+        <!-- SDK event log -->
+        <ScrollView
+            android:id="@+id/log_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:padding="5dp"
+            android:background="@color/log_background"
+            android:layout_weight="0.4">
+
+            <TextView
+                android:id="@+id/log_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Log">
+            </TextView>
+        </ScrollView>
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/share_floating_button"
+        android:icon="@android:drawable/ic_menu_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp" />
+</RelativeLayout>

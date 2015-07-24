@@ -8,5 +8,12 @@
     <string name="companion_height">90</string>
     <string name="companion_width">728</string>
     <string name="custom_ad_tag_value">custom</string>
+    <string name="ad_tag_url_title">Ad tag URL</string>
+    <string name="ad_tag_url_default">No ad tag url found!</string>
 
+    <string name="share_dialog_title">Share Options</string>
+    <array name="share_dialog_options">
+        <item>Share Tearsheet</item>
+        <item>Share Debug Session</item>
+    </array>
 </resources>

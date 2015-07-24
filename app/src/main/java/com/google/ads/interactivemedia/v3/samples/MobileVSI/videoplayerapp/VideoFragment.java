@@ -15,29 +15,37 @@
  */
 package com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.R;
-import com.google.ads.interactivemedia.v3.samples.MobileVSI.samplevideoplayer.SampleVideoPlayer;
-import com.google.ads.interactivemedia.v3.samples.MobileVSI.samplevideoplayer.VideoPlayer;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
 
 /**
  * The main fragment for displaying video content.
  */
-public class VideoFragment extends Fragment {
+public class VideoFragment extends Fragment
+        implements OnClickListener, DialogInterface.OnClickListener{
 
-    private VideoPlayerController mVideoPlayerController;
-    private LinearLayout videoFragmentLayout;
+    private VideoPlayerController playerController;
+    private ViewGroup videoFragmentLayout;
+    private FloatingActionButton shareButton;
     private TextView logText;
     private ScrollView logScroll;
 
@@ -51,73 +59,107 @@ public class VideoFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_video, container, false);
 
-        VideoView videoView = (VideoView) rootView.findViewById(R.id.video_player);
-        ViewGroup adUiContainer = (ViewGroup) rootView.findViewById(R.id.ad_ui_container);
-        View playButton = rootView.findViewById(R.id.play_button);
-
-        ViewGroup companionAdSlot = (ViewGroup) rootView.findViewById(R.id.companion_ad_slot);
-        TextView videoAdTagURL = (TextView) rootView.findViewById(R.id.video_ad_tag_url);
-        videoFragmentLayout = (LinearLayout) rootView.findViewById(R.id.video_fragment_layout);
-
-        logText = (TextView) rootView.findViewById(R.id.log_text);
+        videoFragmentLayout = (ViewGroup) rootView.findViewById(R.id.video_fragment_layout);
+        playerController = (VideoPlayerController) rootView.findViewById(R.id.video_player_controller);
         logScroll = (ScrollView) rootView.findViewById(R.id.log_scroll);
+        logText = (TextView) rootView.findViewById(R.id.log_text);
+        shareButton = (FloatingActionButton) rootView.findViewById(R.id.share_floating_button);
 
-        VideoPlayer videoPlayer = new SampleVideoPlayer(getActivity(), videoView);
-        VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
-                new VideoPlayerWithAdPlayback(videoPlayer);
-        mVideoPlayerController = new VideoPlayerController(this.getActivity(),
-                playButton, videoPlayerWithAdPlayback, getString(R.string.ad_ui_lang),
-                adUiContainer, companionAdSlot, new LoggerImpl());
-
+        playerController.setLogger(new LoggerImpl());
+        shareButton.setOnClickListener(this);
         return rootView;
     }
 
     public void loadVideo(VideoItemMetadata videoItemMetadata) {
-        mVideoPlayerController.setContentVideo(videoItemMetadata.getVideoUrl());
-        mVideoPlayerController.setAdTagUrl(videoItemMetadata.getAdTagUrl());
-        mVideoPlayerController.requestAndPlayAds();
+        playerController.setContentVideo(videoItemMetadata.getVideoUrl());
+        playerController.setAdTagUrl(videoItemMetadata.getAdTagUrl());
+        logText.setText("");
+        playerController.requestAndPlayAds();
     }
 
     /**
      * Shows or hides all non-video UI elements to make the video as large as possible.
      */
-    public void makeFullscreen(boolean isFullscreen) {
-        for (int i = 0; i < videoFragmentLayout.getChildCount(); i++) {
-            View view = videoFragmentLayout.getChildAt(i);
-            // If it's not the video element, hide or show it, depending on fullscreen status.
-            if (view.getId() != R.id.videoContainer) {
-                if (isFullscreen) {
-                    view.setVisibility(View.GONE);
-                } else {
-                    view.setVisibility(View.VISIBLE);
-                }
+    public void switchToLandscape(boolean isFullscreen) {
+        toggleVisibility(videoFragmentLayout, isFullscreen ? View.GONE : View.VISIBLE);
+    }
+
+    private void toggleVisibility(ViewGroup viewGroup, int visibility) {
+        int n = viewGroup.getChildCount();
+        for (int i = 0; i < n; i++) {
+            View view = viewGroup.getChildAt(i);
+            if (view == playerController.getParent()) {
+                toggleVisibility((ViewGroup)view, visibility);
+            } else if (view != playerController) {
+                view.setVisibility(visibility);
             }
         }
     }
 
     @Override
     public void onPause() {
-        if (mVideoPlayerController != null) {
-            mVideoPlayerController.savePosition();
+        if (playerController != null) {
+            playerController.pauseAllPlayback();
         }
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        if (mVideoPlayerController != null) {
-            mVideoPlayerController.restorePosition();
+        if (playerController != null) {
+            playerController.resumeAllPlayback();
         }
         super.onResume();
     }
 
+    // Implementing OnClickListener.onClick(View)
+    @Override
+    public void onClick(View v) {
+        // Share button was clicked
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.share_dialog_title)
+            .setItems(R.array.share_dialog_options, this);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // Implementing DialogInterface.OnClickListener.onClick(DialogInterface, int)
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        // A Share dialog box option was clicked
+        // TODO(radsaggi): Complete this implementation
+        Snackbar.make(videoFragmentLayout, "This option was selected: " + which, Snackbar.LENGTH_LONG).show();
+    }
+
+    private void composeEmail(String subject, Uri attachment) {
+        Activity activity = getActivity();
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_STREAM, attachment);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        }
+    }
+
     private class LoggerImpl implements VideoPlayerController.Logger {
 
+        private static final String TIME_FORMAT = "HH:mm:ss";
+
+        private SimpleDateFormat formatter = new SimpleDateFormat(TIME_FORMAT);
+
         @Override
-        public void log(String message) {
-            MobileVSILogger.log(getClass(), Log.INFO, message);
+        public void log(String logMessage) {
+            MobileVSILogger.log(getClass(), Log.INFO, logMessage);
+            logSkipLogcat(logMessage);
+        }
+
+        @Override
+        public void logSkipLogcat(String message) {
             if (logText != null) {
-                logText.append(message);
+                logText.append(prependTime(message));
+                logText.append("\n");
             }
             if (logScroll != null) {
                 logScroll.post(new Runnable() {
@@ -127,6 +169,11 @@ public class VideoFragment extends Fragment {
                     }
                 });
             }
+        }
+
+        private String prependTime(String message) {
+            String time = formatter.format(Calendar.getInstance());
+            return "(" + time + ") " + message;
         }
     }
 }

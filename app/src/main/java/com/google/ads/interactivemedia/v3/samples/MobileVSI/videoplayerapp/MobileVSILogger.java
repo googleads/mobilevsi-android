@@ -11,14 +11,18 @@ import com.google.ads.interactivemedia.v3.samples.MobileVSI.R;
 public class MobileVSILogger {
 
     private static final String GLOBAL_TAG = "MobileVSI";
-    private Class<?> clazz;
+    private String clazz;
+
+    private static void log(String clazz, int priority, String message) {
+        Log.println(priority, GLOBAL_TAG, clazz + message);
+    }
 
     private static String classToString(Class<?> clazz) {
         return clazz.getSimpleName() + ": ";
     }
 
     public static void log(Class<?> clazz, int priority, String message) {
-        Log.println(priority, GLOBAL_TAG, classToString(clazz) + message);
+        log(classToString(clazz), priority, message);
     }
 
     public static void d(Class<?> clazz, String message) {
@@ -42,7 +46,7 @@ public class MobileVSILogger {
     }
 
     public MobileVSILogger(Class<?> clazz) {
-        this.clazz = clazz;
+        this.clazz = classToString(clazz);
     }
 
     public void log(int priority, String message) {

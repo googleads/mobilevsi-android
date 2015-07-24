@@ -8,14 +8,24 @@
         <item name="android:textSize">18dp</item>
     </style>
 
+    <style name="BodyText" parent="Base.TextAppearance.AppCompat.Small">
+        <item name="android:textSize">12dp</item>
+    </style>
+
     <style name="ListTitle" parent="Title">
         <item name="android:textColor">@color/title_darker</item>
         <item name="android:textSize">15dp</item>
     </style>
 
-    <style name="VideoTitle" parent="Title">
+    <style name="AdTagUrl" parent="BodyText">
         <item name="android:textColor">@color/title_dark</item>
-        <item name="android:textSize">12dp</item>
+    </style>
+
+    <style name="Log" parent="BodyText">
+        <item name="android:textSize">10dp</item>
+    </style>
+
+    <style name="CompanionPlaceholder" parent="AdTagUrl">
     </style>
 
 </resources>

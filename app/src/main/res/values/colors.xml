@@ -5,4 +5,5 @@
     <item name="title_darker" type="color">#DDDDDD</item>
 
     <item name="slidermenu_background" type="color">#111111</item>
+    <item name="log_background" type="color">#ffbebebe</item>
 </resources>

@@ -31,11 +31,15 @@ dependencies {
     // libraries - IMA SDK
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    // Support v7
-    compile 'com.android.support:appcompat-v7:22.+'
+    // Support
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:design:22.2.0'
 
     // Play Services
     compile 'com.google.android.gms:play-services-ads:6.5+'
+
+    // ICU4j
+    compile 'com.ibm.icu:icu4j:53.1';
 
     // Espresso
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
