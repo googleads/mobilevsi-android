@@ -45,11 +45,11 @@ public class VideoListFragment extends Fragment
      * Listener called when the user selects a video from the list.
      * Container activity must implement this interface.
      */
-    public interface OnVideoSelectedListener {
-        void onVideoSelected(VideoItemMetadata videoItemMetadata);
+    public interface OnTagSelectedListener {
+        void onTagSelected(VideoItemMetadata videoItemMetadata);
     }
 
-    private OnVideoSelectedListener onVideoSelectedListener;
+    private OnTagSelectedListener onTagSelectedListener;
 
     private VideoItemAdapter videoItemAdapter;
 
@@ -59,10 +59,10 @@ public class VideoListFragment extends Fragment
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            onVideoSelectedListener = (OnVideoSelectedListener) activity;
+            onTagSelectedListener = (OnTagSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement " + OnVideoSelectedListener.class.getName());
+                    + " must implement " + OnTagSelectedListener.class.getName());
         }
     }
 
@@ -82,7 +82,7 @@ public class VideoListFragment extends Fragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (onVideoSelectedListener != null) {
+        if (onTagSelectedListener != null) {
             VideoListItem selectedVideoListItem = (VideoListItem) listView.getItemAtPosition(position);
             selectedVideoListItem.fireCallback(getActivity(), this);
         }
@@ -90,7 +90,7 @@ public class VideoListFragment extends Fragment
 
     @Override
     public void deliverVideoItemMetadata(VideoItemMetadata metadata) {
-        onVideoSelectedListener.onVideoSelected(metadata);
+        onTagSelectedListener.onTagSelected(metadata);
     }
 
     public static List<VideoListItem> getAllVideoItems() {

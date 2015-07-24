@@ -18,12 +18,15 @@ package com.google.ads.interactivemedia.v3.samples.MobileVSI;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.AdTagUrlDisplayFragment;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.VideoFragment;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.slidermenu.VideoListFragment;
 
@@ -31,37 +34,47 @@ import com.google.ads.interactivemedia.v3.samples.MobileVSI.slidermenu.VideoList
  * Main Activity.
  */
 public class MainActivity extends AppCompatActivity
-    implements VideoListFragment.OnVideoSelectedListener {
+    implements VideoListFragment.OnTagSelectedListener,
+        AdTagUrlDisplayFragment.OnVideoAdStartListener{
 
-    private static final String VIDEO_PLAYLIST_FRAGMENT_TAG = "video_playlist_fragment_tag";
-    private static final String VIDEO_DISPLAY_FRAGMENT_TAG = "video_example_fragment_tag";
+    private static final String FRAGMENT_VIDEO_PLAYLIST = "fragment_video_playlist";
+    private static final String FRAGMENT_VIDEO_DISPLAY = "fragment_video_example";
+    private static final String FRAGMENT_AD_TAG_URL_DISPLAY = "fragment_video_url_display";
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
 
-    private VideoFragment videoFragment;
     private VideoListFragment videoListFragment;
+    private AdTagUrlDisplayFragment adTagUrlFragment;
+    private VideoFragment videoFragment;
+
+    private int displayContainerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // The video list fragment won't exist for phone layouts, so add it dynamically so we can
-        // .replace() it once the user selects a video.
+        displayContainerId = R.id.frame_container;
+
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragmentManager.findFragmentByTag(VIDEO_PLAYLIST_FRAGMENT_TAG) == null) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (fragmentManager.findFragmentByTag(FRAGMENT_VIDEO_PLAYLIST) == null) {
             videoListFragment = new VideoListFragment();
-            fragmentManager.beginTransaction()
-                    .add(R.id.slidermenu_list, videoListFragment, VIDEO_PLAYLIST_FRAGMENT_TAG)
-                    .commit();
+            transaction.add(R.id.slidermenu_list, videoListFragment, FRAGMENT_VIDEO_PLAYLIST);
         }
-        if (fragmentManager.findFragmentByTag(VIDEO_DISPLAY_FRAGMENT_TAG) == null) {
+        if (fragmentManager.findFragmentByTag(FRAGMENT_VIDEO_DISPLAY) == null) {
             videoFragment = new VideoFragment();
-            fragmentManager.beginTransaction()
-                    .add(R.id.frame_container, videoFragment, VIDEO_DISPLAY_FRAGMENT_TAG)
-                    .commit();
+            transaction.add(R.id.frame_container, videoFragment, FRAGMENT_VIDEO_DISPLAY);
+            // TODO: Must start using add and remove instead of hide and show
+            transaction.hide(videoFragment);
         }
+        if (fragmentManager.findFragmentByTag(FRAGMENT_AD_TAG_URL_DISPLAY) == null) {
+            adTagUrlFragment = new AdTagUrlDisplayFragment();
+            adTagUrlFragment.addOnVideoAdStartListener(this);
+            transaction.add(R.id.frame_container, adTagUrlFragment, FRAGMENT_AD_TAG_URL_DISPLAY);
+        }
+        transaction.commit();
 
         drawerLayout = (DrawerLayout) findViewById(R.id.container);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
@@ -107,57 +120,8 @@ public class MainActivity extends AppCompatActivity
     private void orientAppUi() {
         int orientation = getResources().getConfiguration().orientation;
         boolean isLandscape = (orientation == Configuration.ORIENTATION_LANDSCAPE);
-        // Hide the non-video content when in landscape so the video is as large as possible.
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        VideoFragment videoFragment = (VideoFragment) fragmentManager
-//                .findFragmentByTag(VIDEO_DISPLAY_FRAGMENT_TAG);
-//
-//        Fragment videoListFragment = fragmentManager.findFragmentByTag(
-//                VIDEO_PLAYLIST_FRAGMENT_TAG);
-
-//        if (videoFragment != null) {
-            // If the video playlist is onscreen (tablets) then hide that fragment.
-//            if (videoListFragment != null) {
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                if (isLandscape) {
-//                    fragmentTransaction.hide(videoListFragment);
-//                } else {
-//                    fragmentTransaction.show(videoListFragment);
-//                }
-//                fragmentTransaction.commit();
-//            }
-            videoFragment.switchToLandscape(isLandscape);
-//            if (isLandscape) {
-//                hideStatusBar();
-//            } else {
-//                showStatusBar();
-//            }
-//        } else {
-            // If returning to the list from a fullscreen video, check if the video
-            // list fragment exists and is hidden. If so, show it.
-//            if (videoListFragment != null && videoListFragment.isHidden()) {
-//                fragmentManager.beginTransaction().show(videoListFragment).commit();
-//                showStatusBar();
-//            }
-//        }
+        videoFragment.switchToLandscape(isLandscape);
     }
-
-    // TODO: Remove these commented sections when the landscape mode design is ready
-
-//    private void hideStatusBar() {
-//        if (Build.VERSION.SDK_INT >= 16) {
-//            getWindow().getDecorView().setSystemUiVisibility(
-//                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
-//            getSupportActionBar().hide();
-//        }
-//    }
-//
-//    private void showStatusBar() {
-//        if (Build.VERSION.SDK_INT >= 16) {
-//            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-//            getSupportActionBar().show();
-//        }
-//    }
 
     public void openDrawer() {
         drawerLayout.openDrawer(findViewById(R.id.slidermenu_list));
@@ -168,26 +132,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onVideoSelected(VideoItemMetadata videoItemMetadata) {
-        VideoFragment videoFragment = (VideoFragment)
-                getSupportFragmentManager().findFragmentByTag(VIDEO_DISPLAY_FRAGMENT_TAG);
+    public void onTagSelected(VideoItemMetadata videoItemMetadata) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .hide(videoFragment)
+                .show(adTagUrlFragment)
+                .commit();
 
-        // Add the video fragment if it's missing (phone form factor), but only if the user
-        // manually selected the video.
-        if (videoFragment == null) {
-            VideoListFragment videoListFragment = (VideoListFragment) getSupportFragmentManager()
-                    .findFragmentByTag(VIDEO_PLAYLIST_FRAGMENT_TAG);
-            int videoPlaylistFragmentId = videoListFragment.getId();
+        adTagUrlFragment.setVideoItemMetadata(videoItemMetadata);
 
-            videoFragment = new VideoFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(videoPlaylistFragmentId, videoFragment, VIDEO_DISPLAY_FRAGMENT_TAG)
-                    .addToBackStack(null)
-                    .commit();
-        }
-        videoFragment.loadVideo(videoItemMetadata);
-        orientAppUi();
         closeDrawer();
+    }
+
+    @Override
+    public void onVideoAdStartAction(VideoItemMetadata videoItemMetadata) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .hide(adTagUrlFragment)
+                .show(videoFragment)
+                .commit();
+
+        videoFragment.loadVideo(videoItemMetadata);
+
+        orientAppUi();
     }
 }
