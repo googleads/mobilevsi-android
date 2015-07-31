@@ -15,14 +15,11 @@
  */
 package com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,6 +30,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.R;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.AdTagUrlSharableItem;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.DebugSessionPackage;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.EmailShareAction;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.MetadataSharableItem;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.SdkLogsSharableItem;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.ScreenshotSharableItem;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.SharablePackage;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.ShareAction;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.sharing.TearSheetPackage;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
@@ -48,6 +54,7 @@ public class VideoFragment extends Fragment
     private FloatingActionButton shareButton;
     private TextView logText;
     private ScrollView logScroll;
+    private MobileVSILogger logger;
 
     @Override
     public void onActivityCreated(Bundle bundle) {
@@ -67,6 +74,7 @@ public class VideoFragment extends Fragment
 
         playerController.setLogger(new LoggerImpl());
         shareButton.setOnClickListener(this);
+        logger = new MobileVSILogger(getClass());
         return rootView;
     }
 
@@ -127,19 +135,35 @@ public class VideoFragment extends Fragment
     @Override
     public void onClick(DialogInterface dialog, int which) {
         // A Share dialog box option was clicked
-        // TODO(radsaggi): Complete this implementation
-        Snackbar.make(videoFragmentLayout, "This option was selected: " + which, Snackbar.LENGTH_LONG).show();
-    }
 
-    private void composeEmail(String subject, Uri attachment) {
-        Activity activity = getActivity();
+        String sdkVersion = getResources().getString(R.string.sdk_version);
 
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        intent.putExtra(Intent.EXTRA_STREAM, attachment);
-        if (intent.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivity(intent);
+        AdTagUrlSharableItem adTagURL = new AdTagUrlSharableItem(playerController.getCurrentAdTagUrl());
+        ScreenshotSharableItem screenshot = new ScreenshotSharableItem(videoFragmentLayout);
+        MetadataSharableItem metadata = new MetadataSharableItem(sdkVersion);
+        SdkLogsSharableItem sdkLogs = new SdkLogsSharableItem(logText.getText().toString());
+
+        SharablePackage sharePackage = null;
+        switch (which) {
+            case 0: // Share tearsheet
+                sharePackage = new TearSheetPackage(adTagURL, screenshot);
+                break;
+            case 1: // Share debug session
+                sharePackage = new DebugSessionPackage(adTagURL, screenshot, metadata, sdkLogs);
+                break;
+        }
+
+        ShareAction shareAction = new EmailShareAction(getActivity());
+        Intent intent = shareAction.getShareIntent(sharePackage);
+        if (intent.resolveActivity(this.getActivity().getPackageManager()) != null) {
+            startActivity(Intent.createChooser(intent, "Choose email app"));
+        } else {
+            logger.e("No app found to handle email Intent");
+            AlertDialog alert = new AlertDialog.Builder(getActivity())
+                    .setTitle("Error!")
+                    .setMessage("No email app installed. Install an email app for sharing.")
+                    .create();
+            alert.show();
         }
     }
 

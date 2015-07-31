@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Video Suite Inspector</string>
+    <string name="sdk_version">v3-3.b11.4</string>
     <string name="action_settings">Settings</string>
     <string name="companion_placeholder">Companion Ad Slot</string>
     <string name="ad_ui_lang">en</string>
