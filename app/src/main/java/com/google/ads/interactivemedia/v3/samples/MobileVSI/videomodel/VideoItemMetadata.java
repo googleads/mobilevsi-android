@@ -15,28 +15,21 @@
  */
 package com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel;
 
+import android.provider.MediaStore;
+
 /**
  * Information about a video playlist item that the user will select in a playlist.
  */
 public final class VideoItemMetadata {
 
-    private final int mThumbnailResourceId;
     private final String mTitle;
     private final String mVideoUrl;
     private final String mAdTagUrl;
 
-    public VideoItemMetadata(String videoUrl, String title, String adTagUrl, int thumbnailResourceId) {
-        mThumbnailResourceId = thumbnailResourceId;
+    public VideoItemMetadata(String videoUrl, String title, String adTagUrl) {
         mTitle = title;
         mAdTagUrl = adTagUrl;
         mVideoUrl = videoUrl;
-    }
-
-    /**
-     * Returns the video thumbnail image resource.
-     */
-    public int getImageResource() {
-        return mThumbnailResourceId;
     }
 
     /**
@@ -58,5 +51,12 @@ public final class VideoItemMetadata {
      */
     public String getAdTagUrl() {
         return mAdTagUrl;
+    }
+
+    /**
+     * Create a new VideoItemMetadata by setting a new ad tag URL
+     */
+    public VideoItemMetadata setAdTagUrl(String adTagUrl) {
+        return new VideoItemMetadata(mVideoUrl, mTitle, adTagUrl);
     }
 }

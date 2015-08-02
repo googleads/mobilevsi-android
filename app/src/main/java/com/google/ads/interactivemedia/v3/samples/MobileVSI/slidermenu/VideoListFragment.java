@@ -30,10 +30,12 @@ import java.util.List;
 
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.R;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.DirectInputVideoListItem;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.QRCodeVideoListItem;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.SampleVideoListItem;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoListItem;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoListItem.VideoListItemCallback;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.ActivityStarterWithContext;
 
 /**
  * Fragment for displaying a playlist of video thumbnails that the user can select from to play.
@@ -84,7 +86,7 @@ public class VideoListFragment extends Fragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (onTagSelectedListener != null) {
             VideoListItem selectedVideoListItem = (VideoListItem) listView.getItemAtPosition(position);
-            selectedVideoListItem.fireCallback(getActivity(), this);
+            selectedVideoListItem.fireCallback((ActivityStarterWithContext)getActivity(), this);
         }
     }
 
@@ -97,6 +99,7 @@ public class VideoListFragment extends Fragment
         final List<VideoListItem> videoListItems = new ArrayList<>();
 
         int imageId = R.drawable.thumbnail1;
+        videoListItems.add(new QRCodeVideoListItem(imageId));
         videoListItems.add(new SampleVideoListItem(imageId));
         videoListItems.add(new DirectInputVideoListItem(imageId));
 

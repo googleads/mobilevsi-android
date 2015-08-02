@@ -57,8 +57,7 @@ public class AdTagUrlDisplayFragment extends Fragment implements OnClickListener
         videoItemMetadata = new VideoItemMetadata(
                 videoItemMetadata.getVideoUrl(),
                 videoItemMetadata.getTitle(),
-                adTagUrl,
-                videoItemMetadata.getImageResource());
+                adTagUrl);
 
         fireOnVideoAdStartedAction(videoItemMetadata);
     }

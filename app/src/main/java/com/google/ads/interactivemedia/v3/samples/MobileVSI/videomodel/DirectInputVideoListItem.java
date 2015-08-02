@@ -5,16 +5,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.EditText;
 
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.ActivityStarterWithContext;
+
 /**
  * For a direct input of the ad tag url, through a text field UI.
  */
 public class DirectInputVideoListItem extends VideoListItem {
 
     public DirectInputVideoListItem(int mThumbnailResourceId) {
-        super("Direct Tag Input", mThumbnailResourceId);
+        super("Manual Tag Input", mThumbnailResourceId);
     }
 
-    public void fireCallback(Context c, final VideoListItemCallback callback) {
+    @Override
+    public void fireCallback(ActivityStarterWithContext asc, final VideoListItemCallback callback) {
+        Context c = asc.getContext();
         final EditText txtUrl = new EditText(c);
         txtUrl.setHint("VAST ad tag URL");
 
@@ -27,10 +31,7 @@ public class DirectInputVideoListItem extends VideoListItem {
                         callback.deliverVideoItemMetadata(generateMetadata(customAdTagUrl));
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    }
-                })
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 }

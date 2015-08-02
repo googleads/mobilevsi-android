@@ -15,27 +15,38 @@
  */
 package com.google.ads.interactivemedia.v3.samples.MobileVSI;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 
-import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
-import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.AdTagUrlDisplayFragment;
-import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.VideoFragment;
 import com.google.ads.interactivemedia.v3.samples.MobileVSI.slidermenu.VideoListFragment;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel.VideoItemMetadata;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.ActivityStarterWithContext;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.AdTagUrlDisplayFragment;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.MobileVSILogger;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.MobileVsiUriSchemaUtil;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.ShortLinkUtil;
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.VideoFragment;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Main Activity.
  */
 public class MainActivity extends AppCompatActivity
     implements VideoListFragment.OnTagSelectedListener,
-        AdTagUrlDisplayFragment.OnVideoAdStartListener{
+        AdTagUrlDisplayFragment.OnVideoAdStartListener,
+        ActivityStarterWithContext {
 
     private static final String FRAGMENT_VIDEO_PLAYLIST = "fragment_video_playlist";
     private static final String FRAGMENT_VIDEO_DISPLAY = "fragment_video_example";
@@ -48,14 +59,15 @@ public class MainActivity extends AppCompatActivity
     private AdTagUrlDisplayFragment adTagUrlFragment;
     private VideoFragment videoFragment;
 
-    private int displayContainerId;
+    private MobileVSILogger logger;
+    private HashMap<Integer, ActivityStarterCallback> activityStarterCallbacks;
+    private VideoItemMetadata metadataToLaunch;
+    private boolean isActivityActive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        displayContainerId = R.id.frame_container;
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -83,7 +95,49 @@ public class MainActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        openDrawer();
+        if (logger == null) {
+            logger = new MobileVSILogger(getClass());
+        }
+        if (activityStarterCallbacks == null) {
+            activityStarterCallbacks = new HashMap<>();
+        }
+        metadataToLaunch = null;
+        isActivityActive = false;
+
+        onIntent(getIntent());
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        // the fragments have been created and it is safe to execute fragment transactions now
+        isActivityActive = true;
+        if (metadataToLaunch != null) {
+            this.displayAdTagFragment(metadataToLaunch);
+            metadataToLaunch = null;
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        isActivityActive = false;
+    }
+
+    public void onIntent(Intent intent) {
+        if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+            // opened through a web launcher
+            Uri launchUri = intent.getData();
+            VideoItemMetadata metadata = new VideoItemMetadata(
+                    // TODO: Create a settings object and fetch value from there
+                    "http://rmcdn.2mdn.net/MotifFiles/html/1248596/android_1330378998288.mp4",
+                    "Custom URL",
+                    launchUri.toString());
+            preProcessTag(metadata);
+        } else {
+            // regular app launch
+            openDrawer();
+        }
     }
 
     @Override
@@ -131,17 +185,50 @@ public class MainActivity extends AppCompatActivity
         drawerLayout.closeDrawer(findViewById(R.id.slidermenu_list));
     }
 
+    /**
+     * This function is the goto function for any sort of ad tag entry. Call this function to set
+     * the ad tag url from any source, intents or internal calls. It processes the ad tag
+     * before using it and safely calls displayAdTagFragment() or alternatively delegates the task
+     * to onPostResume().
+     */
+    private void preProcessTag(final VideoItemMetadata videoItemMetadata) {
+        String adTagUrl = videoItemMetadata.getAdTagUrl();
+
+        // Check if the Uri is the custom schema one, and extract if needed.
+        if (MobileVsiUriSchemaUtil.matchesCustomSchema(adTagUrl)) {
+            adTagUrl = MobileVsiUriSchemaUtil.parseLaunchUri(adTagUrl);
+        }
+
+        // Check if the Url is a short link, expand if needed.
+        if (ShortLinkUtil.canExpandShortLink(adTagUrl)) {
+            ShortLinkUtil.tryExpandShortLink(new ShortLinkUtil.ShortLinkUtilCallback() {
+                @Override
+                public void onExpandLink(String fullLink) {
+                    metadataToLaunch = videoItemMetadata.setAdTagUrl(fullLink);
+                    if (isActivityActive) {
+                        displayAdTagFragment(metadataToLaunch);
+                        metadataToLaunch = null;
+                    } // else the metadataToLauch will be launched onPostResume()
+                }
+
+                @Override
+                public void onError(IOException exception) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage("Error expanding short url: " + exception.getMessage());
+                }
+            }, adTagUrl);
+        } else {
+            metadataToLaunch = videoItemMetadata.setAdTagUrl(adTagUrl);
+            if (isActivityActive) {
+                displayAdTagFragment(metadataToLaunch);
+                metadataToLaunch = null;
+            } // else the metadataToLauch will be launched onPostResume()
+        }
+    }
+
     @Override
     public void onTagSelected(VideoItemMetadata videoItemMetadata) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .hide(videoFragment)
-                .show(adTagUrlFragment)
-                .commit();
-
-        adTagUrlFragment.setVideoItemMetadata(videoItemMetadata);
-
-        closeDrawer();
+        preProcessTag(videoItemMetadata);
     }
 
     @Override
@@ -155,5 +242,47 @@ public class MainActivity extends AppCompatActivity
         videoFragment.loadVideo(videoItemMetadata);
 
         orientAppUi();
+    }
+
+    /**
+     * This function actually makes changes to the fragment and commits a transaction.
+     * We must ensure that the function is called only when the activity is in active state,
+     * so that the fragments may not have been garbage collected.
+     * Thus this function is only called at the end of preProcessTag() which puts the safety-check
+     * and when the fragments and activity have resumed.
+     */
+    private void displayAdTagFragment(VideoItemMetadata videoItemMetadata) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .hide(videoFragment)
+                .show(adTagUrlFragment)
+                .commit();
+
+        adTagUrlFragment.setVideoItemMetadata(videoItemMetadata);
+        closeDrawer();
+    }
+
+    @Override
+    public void startActivityWithCallback(Intent intent, ActivityStarterCallback callback) {
+        // Create a hash with only the lower 16 bits set. This is a constraint set by
+        // FragmentActivity.startActivityForResult()
+        int hash = callback.hashCode() & 0xffff;
+        activityStarterCallbacks.put(hash, callback);
+        startActivityForResult(intent, hash);
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (activityStarterCallbacks.containsKey(requestCode)) {
+            ActivityStarterCallback callback = activityStarterCallbacks.get(requestCode);
+            callback.onActivityResult(resultCode, data);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

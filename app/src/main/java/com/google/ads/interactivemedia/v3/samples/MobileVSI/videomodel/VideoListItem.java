@@ -15,6 +15,8 @@
  */
 package com.google.ads.interactivemedia.v3.samples.MobileVSI.videomodel;
 
+import com.google.ads.interactivemedia.v3.samples.MobileVSI.videoplayerapp.ActivityStarterWithContext;
+
 /**
  * This class encapsulates a single Item in the VideoList. It also provides capability to execute
  * custom actions to fetch an ad tag url when the item is selected by the user.
@@ -72,7 +74,7 @@ public abstract class VideoListItem {
      * @return the VideoItemMetadata using properties of this class, the passed adTagURL and videoURL
      */
     protected final VideoItemMetadata generateMetadata(String adTagURL, String videoURL) {
-        return new VideoItemMetadata(videoURL, mTitle, adTagURL, mThumbnailResourceId);
+        return new VideoItemMetadata(videoURL, mTitle, adTagURL);
     }
 
     /**
@@ -92,5 +94,5 @@ public abstract class VideoListItem {
      * @param callback The callback used to deliver the ad tag url packaged in a VideoItemMetadata to
      *                 the app.
      */
-    public abstract void fireCallback(android.content.Context c, VideoListItemCallback callback);
+    public abstract void fireCallback(ActivityStarterWithContext c, VideoListItemCallback callback);
 }
