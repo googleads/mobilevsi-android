@@ -217,23 +217,49 @@ public class VideoPlayerWithAdPlayback
         this.contentVideoUrl = contentVideoUrl;
     }
 
+//    TODO: Revert to this implementation of playAd() when the following SDK bug is fixed:
+//    videoAdPlayer.playAd() is invoked instead of videoAdPlayer.resumeAd() when we call adsManager.resume()
+//
+//    @Override
+//    public void playAd() {
+//        // The player must be stopped
+//        if (isAdDisplayed && videoPlayer.isStopped()) {
+//            if (adVideoUrl == null || adVideoUrl.isEmpty()) {
+//                logger.w("No ad URL specified.");
+//                return;
+//            }
+//            videoPlayer.setVideoPath(adVideoUrl);
+//            videoPlayer.play();
+//            logger.v("playAd()");
+//        } else {
+//            if (!isAdDisplayed) {
+//                logger.w("playAd() called when ad is not displayed. Ignoring call.");
+//            }
+//            if (!videoPlayer.isStopped()) {
+//                logger.w("playAd() called when video player is not stopped. Ignoring call.");
+//            }
+//        }
+//    }
+
     @Override
     public void playAd() {
         // The player must be stopped
-        if (isAdDisplayed && videoPlayer.isStopped()) {
-            if (adVideoUrl == null || adVideoUrl.isEmpty()) {
-                logger.w("No ad URL specified.");
-                return;
+        if (isAdDisplayed && !videoPlayer.isPlaying()) {
+            if (videoPlayer.isStopped()) {
+                if (adVideoUrl == null || adVideoUrl.isEmpty()) {
+                    logger.w("No ad URL specified.");
+                    return;
+                }
+                videoPlayer.setVideoPath(adVideoUrl);
             }
-            videoPlayer.setVideoPath(adVideoUrl);
             videoPlayer.play();
             logger.v("playAd()");
         } else {
             if (!isAdDisplayed) {
                 logger.w("playAd() called when ad is not displayed. Ignoring call.");
             }
-            if (!videoPlayer.isStopped()) {
-                logger.w("playAd() called when video player is not stopped. Ignoring call.");
+            if (videoPlayer.isPlaying()) {
+                logger.w("playAd() called when video player is already playing. Ignoring call.");
             }
         }
     }
