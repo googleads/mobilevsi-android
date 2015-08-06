@@ -13,6 +13,7 @@
     <string name="ad_tag_url_default">No ad tag url found!</string>
 
     <string name="share_dialog_title">Share Options</string>
+    <string name="start_test">Start Test</string>
     <array name="share_dialog_options">
         <item>Share Tearsheet</item>
         <item>Share Debug Session</item>

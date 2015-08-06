@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:weightSum="1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ScrollView
+        android:id="@+id/ad_tag_url_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.85">
+
+        <EditText
+            android:id="@+id/ad_tag_url_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/start_button"
+        android:text="@string/start_test"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.15"
+        android:layout_gravity="end" />
+
+</LinearLayout>
