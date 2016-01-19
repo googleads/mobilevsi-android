@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "com.google.ads.interactivemedia.v3.samples.MobileVSI"
         minSdkVersion 9
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -32,8 +32,8 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     // Support
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:appcompat-v7:23.0.0'
+    compile 'com.android.support:design:23.0.0'
 
     // Play Services
     compile 'com.google.android.gms:play-services-ads:8.4.0'
@@ -44,6 +44,7 @@ dependencies {
     // Espresso
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
     androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile 'com.android.support:support-annotations:23.0.0'
 
     // Robolectric
     testCompile 'org.robolectric:robolectric:2.4'
