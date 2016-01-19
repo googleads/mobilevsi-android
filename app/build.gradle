@@ -36,7 +36,7 @@ dependencies {
     compile 'com.android.support:design:22.2.0'
 
     // Play Services
-    compile 'com.google.android.gms:play-services-ads:6.5+'
+    compile 'com.google.android.gms:play-services-ads:8.4.0'
 
     // ICU4j
     compile 'com.ibm.icu:icu4j:53.1';
