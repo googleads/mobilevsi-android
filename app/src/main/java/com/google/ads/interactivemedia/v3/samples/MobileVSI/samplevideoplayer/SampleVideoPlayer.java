@@ -121,7 +121,7 @@ public class SampleVideoPlayer implements VideoPlayer {
 
     @Override
     public int getDuration() {
-        return videoView.getDuration();
+        return PlaybackState.STOPPED ? 0 : videoView.getDuration();
     }
 
     @Override
