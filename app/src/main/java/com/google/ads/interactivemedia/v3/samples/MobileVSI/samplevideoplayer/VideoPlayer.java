@@ -87,6 +87,11 @@ public interface VideoPlayer {
     int getDuration();
 
     /**
+     * Get the volume of the video player from 0 (mute) to 100 (loudest).
+     */
+    int getVolume();
+
+    /**
      * @return true if the video is currently playing
      */
     boolean isPlaying();

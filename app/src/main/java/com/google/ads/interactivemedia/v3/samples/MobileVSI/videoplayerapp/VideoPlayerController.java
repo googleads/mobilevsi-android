@@ -133,7 +133,7 @@ public class VideoPlayerController extends LinearLayout
 
         // Create an AdsLoader and optionally set the language.
         ImaSdkFactory mSdkFactory = ImaSdkFactory.getInstance();
-        ImaSdkSettings imaSdkSettings = new ImaSdkSettings();
+        ImaSdkSettings imaSdkSettings = mSdkFactory.createImaSdkSettings();
         imaSdkSettings.setLanguage(resources.getString(R.string.ad_ui_lang));
         adsLoader = mSdkFactory.createAdsLoader(getContext(), imaSdkSettings);
         adsLoader.addAdErrorListener(this);

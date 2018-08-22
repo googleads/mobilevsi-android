@@ -306,6 +306,11 @@ public class VideoPlayerWithAdPlayback
     }
 
     @Override
+    public int getVolume() {
+        return videoPlayer.getVolume();
+    }
+
+    @Override
     public void addCallback(VideoAdPlayerCallback videoAdPlayerCallback) {
         videoAdCallbackDelegate.addVideoAdPlayerCallback(videoAdPlayerCallback);
     }

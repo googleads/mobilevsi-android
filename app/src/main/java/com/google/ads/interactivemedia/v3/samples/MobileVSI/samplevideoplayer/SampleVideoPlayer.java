@@ -121,7 +121,13 @@ public class SampleVideoPlayer implements VideoPlayer {
 
     @Override
     public int getDuration() {
-        return PlaybackState.STOPPED ? 0 : videoView.getDuration();
+        return playbackState == PlaybackState.STOPPED ? 0 : videoView.getDuration();
+    }
+
+    @Override
+    public int getVolume() {
+        // MediaPlayer is at full volume by default; never changed here.
+        return 100;
     }
 
     @Override

@@ -1,16 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 27
 
     defaultConfig {
         applicationId "com.google.ads.interactivemedia.v3.samples.MobileVSI"
-        minSdkVersion 9
-        targetSdkVersion 23
+        minSdkVersion 14
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -29,25 +27,15 @@ android {
 
 dependencies {
     // libraries - IMA SDK
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Support
-    compile 'com.android.support:appcompat-v7:23.0.0'
-    compile 'com.android.support:design:23.0.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
 
     // Play Services
-    compile 'com.google.android.gms:play-services-ads:8.4.0'
+    implementation 'com.google.android.gms:play-services-ads:15.0.1'
 
     // ICU4j
-    compile 'com.ibm.icu:icu4j:53.1';
-
-    // Espresso
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
-    androidTestCompile 'com.android.support.test:runner:0.3'
-    androidTestCompile 'com.android.support:support-annotations:23.0.0'
-
-    // Robolectric
-    testCompile 'org.robolectric:robolectric:2.4'
-    testCompile 'org.hamcrest:hamcrest-library:1.3'
-    testCompile 'junit:junit:4.12'
+    implementation 'com.ibm.icu:icu4j:53.1';
 }
